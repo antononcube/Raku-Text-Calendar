@@ -37,6 +37,12 @@ Default, "Emacs style" calendar:
 calendar();
 ```
 
+Compare the output above with the that of UNIX (macOS) function `cal`:
+
+```shell
+cal -3 -h
+```
+
 ### Yearly 
 
 ```raku
