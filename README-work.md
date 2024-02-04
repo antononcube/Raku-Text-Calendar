@@ -87,6 +87,18 @@ Significant modifications are expected for calendars based on ranges of days.
   - [ ] TODO Language localization
     - Using the short names of weekdays in "Date::Names", [TB1]
     - Specified first day of week (e.g. Monday, not Sunday)
+  - [ ] `ncal` mode 
+    - I.e. "transposed" layout like:
+```
+    January 2024      February 2024     March 2024        
+Mo  1  8 15 22 29        5 12 19 26        4 11 18 25   
+Tu  2  9 16 23 30        6 13 20 27        5 12 19 26   
+We  3 10 17 24 31        7 14 21 28        6 13 20 27   
+Th  4 11 18 25        1  8 15 22 29        7 14 21 28   
+Fr  5 12 19 26        2  9 16 23        1  8 15 22 29   
+Sa  6 13 20 27        3 10 17 24        2  9 16 23 30   
+Su  7 14 21 28        4 11 18 25        3 10 17 24 31
+```
 - [ ] Unit tests
   - [ ] DONE Sanity / signatures
   - [ ] TODO Correctness
