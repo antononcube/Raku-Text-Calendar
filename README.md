@@ -31,7 +31,7 @@ use Text::Calendar;
 Date.today;
 ```
 ```
-# 2024-02-04
+# 2024-02-05
 ```
 
 Default, "Emacs style" calendar:
@@ -64,6 +64,23 @@ cal -3 -h
 # 21 22 23 24 25 26 27  18 19 20 21 22 23 24  17 18 19 20 21 22 23  
 # 28 29 30 31           25 26 27 28 29        24 25 26 27 28 29 30  
 #                                             31
+```
+
+Here is the "transposed" version (or UNIX `ncal` style):
+
+```raku
+say "ncal style:\n", calendar(:transposed);
+```
+```
+# ncal style:
+#     January 2024    February 2024   March 2024      
+# Mo  1  8 15 22 29      5 12 19 26      4 11 18 25   
+# Tu  2  9 16 23 30      6 13 20 27      5 12 19 26   
+# We  3 10 17 24 31      7 14 21 28      6 13 20 27   
+# Th  4 11 18 25      1  8 15 22 29      7 14 21 28   
+# Fr  5 12 19 26      2  9 16 23      1  8 15 22 29   
+# Sa  6 13 20 27      3 10 17 24      2  9 16 23 30   
+# Su  7 14 21 28      4 11 18 25      3 10 17 24 31
 ```
 
 ### Yearly 
@@ -135,10 +152,7 @@ Significant modifications are expected for calendars based on ranges of days.
   - [ ] TODO Sparse calendar
     - Only for specified days
     - Days are specified with a list
-  - [ ] TODO Language localization
-    - Using the short names of weekdays in "Date::Names", [TB1]
-    - Specified first day of week (e.g. Monday, not Sunday)
-  - [ ] `ncal` mode 
+  - [X] DONE `ncal` mode 
     - I.e. "transposed" layout like:
 ```
     January 2024      February 2024     March 2024        
@@ -150,6 +164,11 @@ Fr  5 12 19 26        2  9 16 23        1  8 15 22 29
 Sa  6 13 20 27        3 10 17 24        2  9 16 23 30   
 Su  7 14 21 28        4 11 18 25        3 10 17 24 31
 ```
+  - [ ] TODO Language localization
+    - Using the short names of weekdays in "Date::Names", [TB1]
+    - Specified first day of week (e.g. Monday, not Sunday)
+  - [ ] TODO Make sure month blocks align in multi-row layouts
+    - Like, year calendars
 - [ ] Unit tests
   - [ ] DONE Sanity / signatures
   - [ ] TODO Correctness

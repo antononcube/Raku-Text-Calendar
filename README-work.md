@@ -2,6 +2,13 @@
 
 Raku package with text calendar functions for displaying monthly, yearly, and custom calendars.
 
+### Motivation
+
+- For data science applications I need sparse calendars that contain only some of the dates 
+- I like the "transposed" calendar layout of UNIX' `ncal`
+- I want to facilitate making and displaying calendars in Jupyter notebooks using Markdown and HTML layouts  
+- I am interested in comparisons of calendar making (i) with LLM applications, and (ii) in the "hard way" 
+
 -----
 
 ## Installation
@@ -43,6 +50,12 @@ Compare the output above with the that of UNIX (macOS) function `cal`:
 cal -3 -h
 ```
 
+Here is the "transposed" version (or UNIX `ncal` style):
+
+```raku
+say "ncal style:\n", calendar(:transposed);
+```
+
 ### Yearly 
 
 ```raku
@@ -67,6 +80,7 @@ The initial codes for `calendar-month-block` and `calendar` were taken from http
 The modifications done are for:
 - Different signatures for making calendars
 - Using of specs that are lists of year-month pairs
+- Have the transposed, `ncal` style layout
 
 Significant modifications are expected for calendars based on ranges of days.
 (The lists can be both dense or sparse.)
@@ -84,10 +98,7 @@ Significant modifications are expected for calendars based on ranges of days.
   - [ ] TODO Sparse calendar
     - Only for specified days
     - Days are specified with a list
-  - [ ] TODO Language localization
-    - Using the short names of weekdays in "Date::Names", [TB1]
-    - Specified first day of week (e.g. Monday, not Sunday)
-  - [ ] `ncal` mode 
+  - [X] DONE `ncal` mode 
     - I.e. "transposed" layout like:
 ```
     January 2024      February 2024     March 2024        
@@ -99,6 +110,11 @@ Fr  5 12 19 26        2  9 16 23        1  8 15 22 29
 Sa  6 13 20 27        3 10 17 24        2  9 16 23 30   
 Su  7 14 21 28        4 11 18 25        3 10 17 24 31
 ```
+  - [ ] TODO Language localization
+    - Using the short names of weekdays in "Date::Names", [TB1]
+    - Specified first day of week (e.g. Monday, not Sunday)
+  - [ ] TODO Make sure month blocks align in multi-row layouts
+    - Like, year calendars
 - [ ] Unit tests
   - [ ] DONE Sanity / signatures
   - [ ] TODO Correctness
