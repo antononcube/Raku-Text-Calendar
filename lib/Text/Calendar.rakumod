@@ -14,6 +14,15 @@ my %month-names = @month-names Z=> 1 .. 12;
 %month-names = %month-names.map({ $_.key.lc => $_.value });
 
 #==========================================================
+#| This function creates a visual representation of a calendar month, with options to include weekday headers and transpose the layout.
+#| It can be customized with different symbols for empty days and optionally exclude weekday names from the output.
+#| - C<$year>: The year for which the calendar month block is generated. Defaults to C<Whatever>,
+#|   allowing the function to decide or use a context-specific default.
+#| - C<$month>: The month for which the calendar is generated. Also defaults to C<Whatever>.
+#| - C<Str :$empty>: A string used to represent empty days in the calendar block. Defaults to two spaces.
+#| - C<Bool :$weekdays>: A flag indicating whether weekday headers should be included in the output.
+#|   Defaults to C<True:, including the weekdays.
+#| - C<Bool :t(:$transposed)>: A flag to transpose the calendar, changing its orientation. Defaults to C<False>.
 proto calendar-month-block(|) is export {*}
 
 multi sub calendar-month-block($year = Whatever,
@@ -104,6 +113,12 @@ sub three-months(Int $year, UInt $month) {
 }
 
 #==========================================================
+#| Generates a string that represents calendars for given months of a specific year, with options to adjust the layout and appearance.
+#| - C<$year is copy> : Specifies the year for the calendars. This parameter is required and does not have a default value.
+#| - C<$months is copy> : Specifies the months to be included in the calendar. This can be a single month or a list of months. This parameter is required and does not have a default value.
+#| - C<UInt :$per-row> : Determines how many calendars are displayed per row in the output. Defaults to 3.
+#| - C<Str :$empty> : Defines the string used to represent empty days in the calendar. Defaults to two spaces.
+#| - C<Bool :t(:$transposed)> : If set to C<True>, transposes the layout of the calendar. Defaults to C<False>.
 proto calendar(|) is export {*}
 
 multi sub calendar($year is copy,
@@ -149,7 +164,7 @@ multi sub calendar($months is copy = Whatever,
         }
     }
 
-    die "The first argument is expected to be Whatever, a list of month names or integers between 1 and 12, a list of year-month pairs."
+    die "The first argument is expected to be Whatever, a list of month names or integers between 1 and 12, or a list of year-month pairs."
     unless $months>>.value.all ~~ UInt:D && ([&&] $months>>.value.map({ 1 ≤ $_ ≤ 12 }));
 
     return calendar-rows($months, :$per-row, :$empty, :$transposed);
@@ -184,6 +199,10 @@ multi sub calendar-rows(@months is copy where @months.all ~~ Pair:D,
 }
 
 #==========================================================
+#| A shortcut for calendar
+#| - C<$year> : Year of the calendar. Defaults to Whatever.
+#| - C<UInt :$per-row> : Determines how many calendars are displayed per row in the output. Defaults to 3.
+#| - C<Bool :t(:$transposed)> : If set to C<True>, transposes the layout of the calendar. Defaults to C<False>.
 proto calendar-year(|) is export {*}
 
 multi sub calendar-year($year is copy = Whatever, UInt :$per-row = 3, Bool :t(:$transposed) = False) {
