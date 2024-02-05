@@ -13,14 +13,27 @@ my %month-names = @month-names Z=> 1 .. 12;
 %month-names = %month-names, %( @month-short-names Z=> 1 .. 12);
 %month-names = %month-names.map({ $_.key.lc => $_.value });
 
-#----------------------------------------------------------
+#==========================================================
 proto calendar-month-block(|) is export {*}
 
-multi sub calendar-month-block($year = Whatever, $month = Whatever) {
-    return calendar-month-block(:$year, :$month);
+multi sub calendar-month-block($year = Whatever,
+                               $month = Whatever,
+                               Str :$empty = '  ',
+                               Bool :$weekdays = True,
+                               Bool :t(:$transposed) = False) {
+    return calendar-month-block(:$year, :$month, :$empty, :$weekdays, :$transposed);
 }
 
-multi sub calendar-month-block(:$year is copy = Whatever, :$month is copy = Whatever) {
+multi sub calendar-month-block(:$year is copy = Whatever,
+                               :$month is copy = Whatever,
+                               Str :$empty = '  ',
+                               Bool :$weekdays = True,
+                               Bool :t(:$transposed) = False) {
+
+    # Process transpose
+    if $transposed {
+        return calendar-month-block-transposed(:$year, :$month, :$empty, :$weekdays);
+    }
 
     # Process year
     if $year.isa(Whatever) { $year = Date.today.year; }
@@ -36,15 +49,51 @@ multi sub calendar-month-block(:$year is copy = Whatever, :$month is copy = What
     unless $month ~~ Int:D && 1 ≤ $month ≤ 12;
 
     my $date = Date.new($year, $month, 1);
-    my $res = @month-names[$month - 1].fmt("%-20s\n") ~ @weekday-names ~ "\n" ~
-            (('  ' xx $date.day-of-week - 1),
+    my $res = @month-names[$month - 1].fmt("%-20s\n") ~ ( $weekdays ?? @weekday-names ~ "\n" !! '') ~
+            (($empty xx $date.day-of-week - 1),
              (1 .. $date.days-in-month)».fmt('%2d')).flat.rotor(7, :partial).join("\n") ~
-            (' ' if $_ < 7) ~ ('  ' xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month).day-of-week;
+            (' ' if $_ < 7) ~ ($empty xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month).day-of-week;
 
     return $res;
 }
 
 #----------------------------------------------------------
+sub calendar-month-block-transposed(
+        :$year is copy = Whatever,
+        :$month is copy = Whatever,
+        Str :$empty = '  ',
+        Bool :$weekdays = True) {
+
+    # Standard month block
+    my $res = calendar-month-block(:$year, :$month, empty => '..');
+
+    # Keep head
+    my $head = $res.lines.head.trim;
+
+    # Split into 2D array
+    my @res2 = $res.lines.tail(*-1)>>.split(/\h/, :skip-empty).flat.map({ $_.chars == 1 ?? " $_" !! $_}).rotor(7)>>.Array;
+
+    # Transpose
+    my @res3;
+    for ^@res2.elems -> $i {
+        for ^@res2[0].elems -> $j {
+            @res3[$j][$i] = @res2[$i][$j];
+        }
+    }
+
+    # Combine
+    my $res4 = @res3>>.join(' ').join("\n").subst('..', $empty, :g);
+
+    if !$weekdays {
+        $res4 = $res4.lines.map({ $_.substr(4, *) }).join("\n");
+    }
+
+    # Result
+    $head = ($weekdays ?? ' ' x 4 !! '') ~ $head ~ ' ' ~ $year;
+    return $head ~ ' ' x ($res4.lines.head.chars - $head.chars) ~ "\n" ~ $res4;
+}
+
+#==========================================================
 
 sub three-months(Int $year, UInt $month) {
     my @months = $year X=> (($month - 1) ... ($month + 1));
@@ -54,10 +103,14 @@ sub three-months(Int $year, UInt $month) {
     return @months;
 }
 
-#----------------------------------------------------------
+#==========================================================
 proto calendar(|) is export {*}
 
-multi sub calendar($year is copy, $months is copy, UInt :$per-row = 3) {
+multi sub calendar($year is copy,
+                   $months is copy,
+                   UInt :$per-row = 3,
+                   Str :$empty = '  ',
+                   Bool :t(:$transposed) = False) {
 
     if $year.isa(Whatever) { $year = Date.today.year; }
 
@@ -69,10 +122,13 @@ multi sub calendar($year is copy, $months is copy, UInt :$per-row = 3) {
         $months = [$year => $months,]
     }
 
-    calendar($months, :$per-row);
+    calendar($months, :$per-row, :$empty, :$transposed);
 }
 
-multi sub calendar($months is copy = Whatever, UInt :$per-row = 3) {
+multi sub calendar($months is copy = Whatever,
+                   UInt :$per-row = 3,
+                   Str :$empty = '  ',
+                   Bool :t(:$transposed) = False) {
 
     # Process months specs
     given $months {
@@ -96,15 +152,19 @@ multi sub calendar($months is copy = Whatever, UInt :$per-row = 3) {
     die "The first argument is expected to be Whatever, a list of month names or integers between 1 and 12, a list of year-month pairs."
     unless $months>>.value.all ~~ UInt:D && ([&&] $months>>.value.map({ 1 ≤ $_ ≤ 12 }));
 
-    return calendar-rows($months, :$per-row);
+    return calendar-rows($months, :$per-row, :$empty, :$transposed);
 }
 
-multi sub calendar-rows(@months is copy where @months.all ~~ Pair:D, UInt :$per-row = 3) {
+multi sub calendar-rows(@months is copy where @months.all ~~ Pair:D,
+                        UInt :$per-row = 3,
+                        Str :$empty = '  ',
+                        Bool :t(:$transposed) = False) {
 
     # Make rows of month blocks
     my @month-strs;
     for @months.kv -> $i, $p {
-        @month-strs[$i + 1] = [calendar-month-block($p.key, $p.value).lines]
+        my $weekdays = !$transposed || $i mod $per-row == 0;
+        @month-strs[$i + 1] = [calendar-month-block($p.key, $p.value, :$empty, :$transposed, :$weekdays).lines]
     };
 
     my @C = '';
@@ -118,18 +178,20 @@ multi sub calendar-rows(@months is copy where @months.all ~~ Pair:D, UInt :$per-
         @C.push: '';
     }
 
-    return @C.join: "\n";
+    my $res = @C.join: "\n";
+
+    return $res;
 }
 
-#----------------------------------------------------------
+#==========================================================
 proto calendar-year(|) is export {*}
 
-multi sub calendar-year($year is copy = Whatever, UInt :$per-row = 3) {
+multi sub calendar-year($year is copy = Whatever, UInt :$per-row = 3, Bool :t(:$transposed) = False) {
     if $year.isa(Whatever) { $year = Date.today.year; }
-    return calendar-year(:$year, :$per-row);
+    return calendar-year(:$year, :$per-row, :$transposed);
 }
 
-multi sub calendar-year(:$year, UInt :$per-row = 3) is export {
+multi sub calendar-year(:$year, UInt :$per-row = 3, Bool :t(:$transposed) = False) is export {
     my $header = ' ' x 30 ~ $year;
-    return $header ~ "\n\n" ~ calendar($year, 1 .. 12, :$per-row);
+    return $header ~ "\n\n" ~ calendar($year, 1 .. 12, :$per-row, :$transposed);
 }
