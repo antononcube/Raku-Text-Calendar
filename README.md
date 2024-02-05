@@ -2,6 +2,19 @@
 
 Raku package with text calendar functions for displaying monthly, yearly, and custom calendars.
 
+### Motivation
+
+- For data science applications I need sparse calendars that contain only some of the dates 
+- I want to facilitate making and displaying calendars in Jupyter notebooks using Markdown and HTML layouts  
+- I like the "transposed" calendar layout of UNIX' `ncal`
+- I am interested in comparisons of calendar making (i) with LLM applications, and (ii) in the "hard way" 
+
+### Alternative implementations
+
+- ["App::Cal"](https://raku.land/zef:coke/App::Cal), [WC1].
+- ["Calendar"](https://raku.land/zef:tbrowder/Calendar), [TB1].
+
+
 -----
 
 ## Installation
@@ -135,6 +148,7 @@ The initial codes for `calendar-month-block` and `calendar` were taken from http
 The modifications done are for:
 - Different signatures for making calendars
 - Using of specs that are lists of year-month pairs
+- Have the transposed, `ncal` style layout
 
 Significant modifications are expected for calendars based on ranges of days.
 (The lists can be both dense or sparse.)
@@ -152,23 +166,15 @@ Significant modifications are expected for calendars based on ranges of days.
   - [ ] TODO Sparse calendar
     - Only for specified days
     - Days are specified with a list
-  - [X] DONE `ncal` mode 
-    - I.e. "transposed" layout like:
-```
-    January 2024      February 2024     March 2024        
-Mo  1  8 15 22 29        5 12 19 26        4 11 18 25   
-Tu  2  9 16 23 30        6 13 20 27        5 12 19 26   
-We  3 10 17 24 31        7 14 21 28        6 13 20 27   
-Th  4 11 18 25        1  8 15 22 29        7 14 21 28   
-Fr  5 12 19 26        2  9 16 23        1  8 15 22 29   
-Sa  6 13 20 27        3 10 17 24        2  9 16 23 30   
-Su  7 14 21 28        4 11 18 25        3 10 17 24 31
-```
+  - [X] DONE transposed or `ncal` mode 
   - [ ] TODO Language localization
-    - Using the short names of weekdays in "Date::Names", [TB1]
+    - Using the short names of weekdays in "Date::Names", [TB2]
     - Specified first day of week (e.g. Monday, not Sunday)
-  - [ ] TODO Make sure month blocks align in multi-row layouts
+  - [ ] TODO Make sure month blocks align in multi-row layouts 
     - Like, year calendars
+    - For transposed only
+  - [ ] TODO Return a list of pairs with year-month keys and month-text-block keys
+    - Using adverb `:pairs`
 - [ ] Unit tests
   - [ ] DONE Sanity / signatures
   - [ ] TODO Correctness
@@ -177,7 +183,7 @@ Su  7 14 21 28        4 11 18 25        3 10 17 24 31
     - [ ] Span
 - [ ] Documentation
   - [X] DONE Basic README
-  - [ ] TODO Detailed usage messages
+  - [X] DONE Detailed usage messages
   - [ ] TODO Comparison with LLMs
 
 -----
@@ -185,6 +191,17 @@ Su  7 14 21 28        4 11 18 25        3 10 17 24 31
 ## References
 
 [TB1] Tom Browder,
+[Calendar Raku package](https://github.com/tbrowder/Calendar),
+(2020-2024),
+[GitHub/tbrowder](https://github.com/tbrowder).
+
+[TB2] Tom Browder,
 [Date::Names Raku package](https://github.com/tbrowder/Date-Names),
 (2019-2024),
 [GitHub/tbrowder](https://github.com/tbrowder).
+
+
+[WC1] Will Coleda,
+[App::Cal Raku packate](https://github.com/coke/raku-cal),
+(2022-2024),
+[GitHub/coke](https://github.com/coke).
