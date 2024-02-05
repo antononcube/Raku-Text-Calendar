@@ -19,13 +19,17 @@
   ],
   "source-url": "https://github.com/antononcube/Raku-Text-Calendar",
   "tags": [
+    "cal",
     "calendar",
-    "text",
-    "yearly",
+    "month",
     "monthly",
-    "span"
+    "ncal",
+    "span",
+    "text",
+    "year",
+    "yearly"
   ],
   "test-depends": [
   ],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
