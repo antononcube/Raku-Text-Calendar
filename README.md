@@ -14,7 +14,7 @@ Raku package with text calendar functions for displaying monthly, yearly, and cu
 - ["App::Cal"](https://raku.land/zef:coke/App::Cal), [WCp1].
 - ["Calendar"](https://raku.land/zef:tbrowder/Calendar), [TBp1].
 
-Compared to [WCp1] and [TBp1], this package, "Text::Calendars", is lightweight and with no dependencies.
+Compared to [WCp1] and [TBp1], this package, "Text::Calendar", is lightweight and with no dependencies.
 
 -----
 
