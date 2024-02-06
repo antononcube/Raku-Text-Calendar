@@ -129,15 +129,17 @@ multi sub calendar($year is copy,
 
     if $year.isa(Whatever) { $year = Date.today.year; }
 
-    if $months.isa(Whatever) {
-        $months = three-months($year, Date.today.month);
+    my $months2 = do if $months.isa(Whatever) {
+        three-months($year, Date.today.month);
     } elsif $months ~~ Iterable {
-        $months = ($year X=> $months.Array).cache;
-    } elsif $months ~~ Str:D || $months ~~ Int:D {
-        $months = [$year => $months,]
+        ($year X=> $months.Array).cache;
+    } elsif ($months ~~ Str:D) || ($months ~~ Int:D) {
+        [$year => $months, ];
+    } else {
+        die "Do not know how to process the months argument.";
     }
 
-    calendar($months, :$per-row, :$empty, :$transposed);
+    calendar($months2, :$per-row, :$empty, :$transposed);
 }
 
 multi sub calendar($months is copy = Whatever,
@@ -153,10 +155,12 @@ multi sub calendar($months is copy = Whatever,
 
         when $_ ~~ Iterable && $_.map({ $_ ~~ UInt:D || $_ ~~ Str:D }) {
             $months .= map({ $_ ~~ Str:D ?? %month-names{$_.lc} !! $_ });
-            $months = Date.today.Year => $months.Array;
+            $months = Date.today.Year X=> $months.Array;
         }
 
         when $_.all ~~ Pair:D {
+            # Replace month names with integers
+            $months = $_.map(-> $p { $p.key => ($p.value ~~ Str:D ?? %month-names{$p.value.lc} !! $p.value) }).Array;
         }
 
         default {
@@ -164,7 +168,7 @@ multi sub calendar($months is copy = Whatever,
         }
     }
 
-    die "The first argument is expected to be Whatever, a list of month names or integers between 1 and 12, or a list of year-month pairs."
+    die "The months argument is expected to be Whatever, a list of month names or integers between 1 and 12, or a list of year-month pairs."
     unless $months>>.value.all ~~ UInt:D && ([&&] $months>>.value.map({ 1 ≤ $_ ≤ 12 }));
 
     return calendar-rows($months, :$per-row, :$empty, :$transposed);
