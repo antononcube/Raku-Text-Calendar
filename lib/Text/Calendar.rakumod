@@ -6,18 +6,26 @@ use v6.d;
 
 unit module Text::Calendar;
 
+#==========================================================
 my @weekday-names = <Mo Tu We Th Fr Sa Su>;
 my @month-short-names = <Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec>;
 my @month-names = <January February March April May June July August September October November December>;
 my %month-names = @month-names Z=> 1 .. 12;
-%month-names = %month-names, %( @month-short-names Z=> 1 .. 12);
+%month-names = %month-names, %( @month-short-names>>.lc Z=> 1 .. 12);
 %month-names = %month-names.map({ $_.key.lc => $_.value });
+
+sub calendar-weekday-names() is export {
+    @weekday-names;
+}
+
+sub calendar-month-names(Bool :$short = False) is export {
+    $short ?? @month-short-names !! @month-names;
+}
 
 #==========================================================
 #| This function creates a visual representation of a calendar month, with options to include weekday headers and transpose the layout.
 #| It can be customized with different symbols for empty days and optionally exclude weekday names from the output.
-#| - C<$year>: The year for which the calendar month block is generated. Defaults to C<Whatever>,
-#|   allowing the function to decide or use a context-specific default.
+#| - C<$year>: The year for which the calendar month block is generated. Defaults to C<Whatever>.
 #| - C<$month>: The month for which the calendar is generated. Also defaults to C<Whatever>.
 #| - C<Str :$empty>: A string used to represent empty days in the calendar block. Defaults to two spaces.
 #| - C<Bool :$weekdays>: A flag indicating whether weekday headers should be included in the output.
@@ -52,16 +60,16 @@ multi sub calendar-month-block(:$year is copy = Whatever,
 
     # Process month
     if $month.isa(Whatever) { $month = Date.today.month; }
-    if $month ~~ Str:D { $month = %month-names{$month} // 0 }
+    if $month ~~ Str:D { $month = %month-names{$month.lc} // 0 }
 
     die 'The argument $month is expected to be a month name, an interger between 1 and 12, or Whatever.'
     unless $month ~~ Int:D && 1 ≤ $month ≤ 12;
 
     my $date = Date.new($year, $month, 1);
-    my $res = @month-names[$month - 1].fmt("%-20s\n") ~ ( $weekdays ?? @weekday-names ~ "\n" !! '') ~
-            (($empty xx $date.day-of-week - 1),
-             (1 .. $date.days-in-month)».fmt('%2d')).flat.rotor(7, :partial).join("\n") ~
-            (' ' if $_ < 7) ~ ($empty xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month).day-of-week;
+    my $res = @month-names[$month - 1].fmt("%-20s\n") ~ ($weekdays ?? @weekday-names ~ "\n" !! '') ~
+              (($empty xx $date.day-of-week - 1),
+              (1 .. $date.days-in-month)».fmt('%2d')).flat.rotor(7, :partial).join("\n") ~
+              (' ' if $_ < 7) ~ ($empty xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month).day-of-week;
 
     return $res;
 }
@@ -80,7 +88,7 @@ sub calendar-month-block-transposed(
     my $head = $res.lines.head.trim;
 
     # Split into 2D array
-    my @res2 = $res.lines.tail(*-1)>>.split(/\h/, :skip-empty).flat.map({ $_.chars == 1 ?? " $_" !! $_}).rotor(7)>>.Array;
+    my @res2 = $res.lines.tail(*- 1)>>.split(/\h/, :skip-empty).flat.map({ $_.chars == 1 ?? " $_" !! $_ }).rotor(7)>>.Array;
 
     # Transpose
     my @res3;
@@ -101,6 +109,32 @@ sub calendar-month-block-transposed(
     $head = ($weekdays ?? ' ' x 4 !! '') ~ $head ~ ' ' ~ $year;
     return $head ~ ' ' x ($res4.lines.head.chars - $head.chars) ~ "\n" ~ $res4;
 }
+
+#==========================================================
+#| Returns a dataset each row of which represents a week.
+#| Each records has the weekdays are keys.
+#| - C<$year>: The year for which the calendar month block is generated. Defaults to C<Whatever>.
+#| - C<$month>: The month for which the calendar is generated. Also defaults to C<Whatever>.
+proto calendar-month-dataset(|) is export {*}
+
+multi sub calendar-month-dataset($year = Whatever,
+                                 $month = Whatever,
+                                 Str :$empty = '  ') {
+    return calendar-month-dataset(:$year, :$month, :$empty);
+}
+
+multi sub calendar-month-dataset(:$year is copy = Whatever,
+                                 :$month is copy = Whatever,
+                                 Str :$empty = '  ') {
+    my @calArr = calendar-month-block(:$year, :$month, empty=>'..').lines.tail(*-1).split(/\h/, :skip-empty).rotor(7)>>.Array;
+
+    my @ds = @calArr.tail(*-1).map({ @calArr[0].Array Z=> $_.map({ $_ eq '..' ?? $empty !! $_ }).Array })>>.Hash;
+
+    if $year.isa(Whatever) { $year = Date.today.year; }
+    if $month.isa(Whatever) { $month = Date.today.month; }
+    return $year => $month => @ds;
+}
+
 
 #==========================================================
 
@@ -134,7 +168,7 @@ multi sub calendar($year is copy,
     } elsif $months ~~ Iterable {
         ($year X=> $months.Array).cache;
     } elsif ($months ~~ Str:D) || ($months ~~ Int:D) {
-        [$year => $months, ];
+        [$year => $months,];
     } else {
         die "Do not know how to process the months argument.";
     }
