@@ -132,7 +132,7 @@ multi sub calendar-month-dataset(:$year is copy = Whatever,
 
     if $year.isa(Whatever) { $year = Date.today.year; }
     if $month.isa(Whatever) { $month = Date.today.month; }
-    return $year => $month => @ds;
+    return @ds;
 }
 
 
