@@ -11,9 +11,10 @@ Raku package with text calendar functions for displaying monthly, yearly, and cu
 
 ### Alternative implementations
 
-- ["App::Cal"](https://raku.land/zef:coke/App::Cal), [WC1].
-- ["Calendar"](https://raku.land/zef:tbrowder/Calendar), [TB1].
+- ["App::Cal"](https://raku.land/zef:coke/App::Cal), [WCp1].
+- ["Calendar"](https://raku.land/zef:tbrowder/Calendar), [TBp1].
 
+Compared to [WCp1] and [TBp1], this package, "Text::Calendars", is lightweight and with no dependencies.
 
 -----
 
@@ -139,6 +140,21 @@ calendar([2022=>2, 2023=>11, 2024 => 2])
 # 28                     27 28 29 30            26 27 28 29
 ```
 
+### Month dataset
+
+Using month dataset allows of utilizing HTML formatting in Markdown files or Jupyter notebooks.
+
+Here is an example using ["Data::Translators"](https://raku.land/zef:antononcube/Data::Translators), [AAp1]:
+
+```raku, results=asis
+use Data::Translators;
+my $m = 'February';
+my $res = to-html(calendar-month-dataset(2024, $m), field-names => calendar-weekday-names);
+'<h4>' ~ $m ~ '</h4>' ~ $res.subst('<td>7</td>', '<td><span style="color: red"><b>7</b></span></td>')
+```
+<h4>February</h4><table border="1"><thead><tr><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr></thead><tbody><tr><td>  </td><td>  </td><td>  </td><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><td>5</td><td>6</td><td><span style="color: red"><b>7</b></span></td><td>8</td><td>9</td><td>10</td><td>11</td></tr><tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr><tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr><tr><td>26</td><td>27</td><td>28</td><td>29</td><td>  </td><td>  </td><td>  </td></tr></tbody></table>
+
+
 -----
 
 ## Implementation notes
@@ -167,8 +183,9 @@ Significant modifications are expected for calendars based on ranges of days.
     - Only for specified days
     - Days are specified with a list
   - [X] DONE transposed or `ncal` mode 
+  - [X] DONE Month block dataset
   - [ ] TODO Language localization
-    - Using the short names of weekdays in "Date::Names", [TB2]
+    - Using the short names of weekdays in "Date::Names", [TBp2]
     - Specified first day of week (e.g. Monday, not Sunday)
   - [ ] TODO Make sure month blocks align in multi-row layouts 
     - Like, year calendars
@@ -190,18 +207,23 @@ Significant modifications are expected for calendars based on ranges of days.
 
 ## References
 
-[TB1] Tom Browder,
+[AAp1] Tom Browder,
+[Data::Translators Raku package](https://github.com/antononcube/Raku-Data-Translators),
+(2023),
+[GitHub/tbrowder](https://github.com/antononcube).
+
+[TBp1] Tom Browder,
 [Calendar Raku package](https://github.com/tbrowder/Calendar),
 (2020-2024),
 [GitHub/tbrowder](https://github.com/tbrowder).
 
-[TB2] Tom Browder,
+[TBp2] Tom Browder,
 [Date::Names Raku package](https://github.com/tbrowder/Date-Names),
 (2019-2024),
 [GitHub/tbrowder](https://github.com/tbrowder).
 
 
-[WC1] Will Coleda,
+[WCp1] Will Coleda,
 [App::Cal Raku packate](https://github.com/coke/raku-cal),
 (2022-2024),
 [GitHub/coke](https://github.com/coke).
