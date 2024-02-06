@@ -29,4 +29,7 @@ ok calendar(2024, 1..4, per-row=>2);
 ## 8
 ok calendar-year();
 
+## 9
+ok calendar(2023, 'February', empty=>'..');
+
 done-testing;
