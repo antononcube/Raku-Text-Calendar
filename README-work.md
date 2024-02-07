@@ -16,6 +16,11 @@ Raku package with text calendar functions for displaying monthly, yearly, and cu
 
 Compared to [WCp1] and [TBp1], this package, "Text::Calendar", is lightweight and with no dependencies.
 
+### Extensions
+
+The package ["Markup::Calendar"](https://raku.land/zef:antononcube/Markup::Calendar), [AAp2],
+provides calendars in HTML and Markdown formats.
+
 -----
 
 ## Installation
@@ -82,7 +87,7 @@ calendar([2022=>2, 2023=>11, 2024 => 2])
 
 Using month dataset allows of utilizing HTML formatting in Markdown files or Jupyter notebooks.
 
-Here is an example using ["Data::Translators"](https://raku.land/zef:antononcube/Data::Translators), [AAp1]:
+Here is an example using ["Data::Translators"](https://raku.land/zef:antononcube/Data::Translators), [AAp2]:
 
 ```raku, results=asis
 use Data::Translators;
@@ -90,6 +95,9 @@ my $m = 'February';
 my $res = to-html(calendar-month-dataset(2024, $m), field-names => calendar-weekday-names);
 '<h4>' ~ $m ~ '</h4>' ~ $res.subst('<td>7</td>', '<td><span style="color: red"><b>7</b></span></td>')
 ```
+
+**Remark:** The package "Markup::Calendar", [AAp1], provides extensions of "Text::Calendar" for 
+getting calendars in HTML and Markdown formats.
 
 -----
 
@@ -143,10 +151,15 @@ Significant modifications are expected for calendars based on ranges of days.
 
 ## References
 
-[AAp1] Tom Browder,
+[AAp1] Anton Antonov,
+[Markup::Calendar Raku package](https://github.com/antononcube/Raku-Markup-Calendar),
+(2024),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp2] Anton Antonov,
 [Data::Translators Raku package](https://github.com/antononcube/Raku-Data-Translators),
 (2023),
-[GitHub/tbrowder](https://github.com/antononcube).
+[GitHub/antononcube](https://github.com/antononcube).
 
 [TBp1] Tom Browder,
 [Calendar Raku package](https://github.com/tbrowder/Calendar),
@@ -157,7 +170,6 @@ Significant modifications are expected for calendars based on ranges of days.
 [Date::Names Raku package](https://github.com/tbrowder/Date-Names),
 (2019-2024),
 [GitHub/tbrowder](https://github.com/tbrowder).
-
 
 [WCp1] Will Coleda,
 [App::Cal Raku packate](https://github.com/coke/raku-cal),
