@@ -50,7 +50,7 @@ use Text::Calendar;
 Date.today;
 ```
 ```
-# 2024-02-07
+# 2024-02-09
 ```
 
 Default, "Emacs style" calendar:
@@ -160,8 +160,8 @@ my $res = to-html(calendar-month-dataset(2024, $m), field-names => calendar-week
 <h4>February</h4><table border="1"><thead><tr><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr></thead><tbody><tr><td>  </td><td>  </td><td>  </td><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><td>5</td><td>6</td><td><span style="color: red"><b>7</b></span></td><td>8</td><td>9</td><td>10</td><td>11</td></tr><tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr><tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr><tr><td>26</td><td>27</td><td>28</td><td>29</td><td>  </td><td>  </td><td>  </td></tr></tbody></table>
 
 
-**Remark:** The package "Markup::Calendar", [AAp1], provides extensions of "Text::Calendar" for 
-getting calendars in HTML and Markdown formats.
+**Remark:** The package ["Markup::Calendar"](https://raku.land/zef:antononcube/Markup::Calendar), [AAp1], 
+provides extensions of "Text::Calendar" for getting calendars in HTML and Markdown formats.
 
 -----
 

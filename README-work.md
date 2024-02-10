@@ -96,8 +96,8 @@ my $res = to-html(calendar-month-dataset(2024, $m), field-names => calendar-week
 '<h4>' ~ $m ~ '</h4>' ~ $res.subst('<td>7</td>', '<td><span style="color: red"><b>7</b></span></td>')
 ```
 
-**Remark:** The package "Markup::Calendar", [AAp1], provides extensions of "Text::Calendar" for 
-getting calendars in HTML and Markdown formats.
+**Remark:** The package ["Markup::Calendar"](https://raku.land/zef:antononcube/Markup::Calendar), [AAp1], 
+provides extensions of "Text::Calendar" for getting calendars in HTML and Markdown formats.
 
 -----
 
