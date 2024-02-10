@@ -56,7 +56,7 @@ multi sub calendar-month-block(:$year is copy = Whatever,
     if $year.isa(Whatever) { $year = Date.today.year; }
 
     die 'The argument $year is expected to be an interger or Whatever.'
-    unless $year ~~ Int:D;
+    unless $year ~~ UInt:D;
 
     # Process month
     if $month.isa(Whatever) { $month = Date.today.month; }
@@ -67,9 +67,10 @@ multi sub calendar-month-block(:$year is copy = Whatever,
 
     my $date = Date.new($year, $month, 1);
     my $res = @month-names[$month - 1].fmt("%-20s\n") ~ ($weekdays ?? @weekday-names ~ "\n" !! '') ~
-              (($empty xx $date.day-of-week - 1),
-              (1 .. $date.days-in-month)».fmt('%2d')).flat.rotor(7, :partial).join("\n") ~
-              (' ' if $_ < 7) ~ ($empty xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month).day-of-week;
+            (($empty xx $date.day-of-week - 1),
+             (1 .. $date.days-in-month)».fmt('%2d')).flat.rotor(7, :partial).join("\n") ~
+            (' ' if $_ < 7) ~ ($empty xx 7 - $_).join(' ') given Date.new($year, $month, $date.days-in-month)
+            .day-of-week;
 
     return $res;
 }
@@ -126,9 +127,9 @@ multi sub calendar-month-dataset($year = Whatever,
 multi sub calendar-month-dataset(:$year is copy = Whatever,
                                  :$month is copy = Whatever,
                                  Str :$empty = '  ') {
-    my @calArr = calendar-month-block(:$year, :$month, empty=>'..').lines.tail(*-1).split(/\h/, :skip-empty).rotor(7)>>.Array;
+    my @calArr = calendar-month-block(:$year, :$month, empty => '..').lines.tail(*- 1).split(/\h/, :skip-empty).rotor(7)>>.Array;
 
-    my @ds = @calArr.tail(*-1).map({ @calArr[0].Array Z=> $_.map({ $_ eq '..' ?? $empty !! $_ }).Array })>>.Hash;
+    my @ds = @calArr.tail(*- 1).map({ @calArr[0].Array Z=> $_.map({ $_ eq '..' ?? $empty !! $_ }).Array })>>.Hash;
 
     if $year.isa(Whatever) { $year = Date.today.year; }
     if $month.isa(Whatever) { $month = Date.today.month; }
@@ -138,12 +139,58 @@ multi sub calendar-month-dataset(:$year is copy = Whatever,
 
 #==========================================================
 
-sub three-months(Int $year, UInt $month) {
+#| Give three consecutive months.
+#| C<$year> -- Current year.
+#| C<$month> -- Current month.
+our sub three-months(Int $year, UInt $month) {
     my @months = $year X=> (($month - 1) ... ($month + 1));
     @months[0] = @months[0].value == 0 ?? (($year - 1) => 12) !! @months[0];
     @months[2] = @months[2].value == 13 ?? (($year + 1) => 1) !! @months[2];
 
     return @months;
+}
+
+#==========================================================
+
+#| Process month specifications.
+#| C<$month> -- Month specs: Whatever, Iterable of UInt | Str, or Iterable of year-month pairs.
+#| C<$year> -- Year for the months.
+our sub process-month-specs($months is copy, $year is copy = Whatever ) {
+
+    if $year.isa(Whatever) { $year = Date.today.year; }
+
+    die "Do not know how to process the year argument."
+    unless $year ~~ UInt:D;
+
+    given $months {
+        when Whatever {
+            $months = three-months($year, Date.today.month);
+        }
+
+        when ($_ ~~ UInt:D) && 1 ≤ $_ ≤ 12 {
+            $months = [$year => $months,];
+        }
+
+        when $months ~~ Str:D {
+            $months = [$year => %month-names{$months.lc},];
+        }
+
+        when $_ ~~ Iterable && $_.map({ $_ ~~ UInt:D || $_ ~~ Str:D }) {
+            $months .= map({ $_ ~~ Str:D ?? %month-names{$_.lc} !! $_ });
+            $months = ($year X=> $months.Array).cache;
+        }
+
+        when $_.all ~~ Pair:D {
+            # Replace month names with integers
+            $months = $_.map(-> $p { $p.key => ($p.value ~~ Str:D ?? %month-names{$p.value.lc} !! $p.value) }).Array;
+        }
+
+        default {
+            die "Do not know how to process the months argument.";
+        }
+    }
+
+    return $months;
 }
 
 #==========================================================
@@ -161,19 +208,9 @@ multi sub calendar($year is copy,
                    Str :$empty = '  ',
                    Bool :t(:$transposed) = False) {
 
-    if $year.isa(Whatever) { $year = Date.today.year; }
+    $months = process-month-specs($months, $year);
 
-    my $months2 = do if $months.isa(Whatever) {
-        three-months($year, Date.today.month);
-    } elsif $months ~~ Iterable {
-        ($year X=> $months.Array).cache;
-    } elsif ($months ~~ Str:D) || ($months ~~ Int:D) {
-        [$year => $months,];
-    } else {
-        die "Do not know how to process the months argument.";
-    }
-
-    calendar($months2, :$per-row, :$empty, :$transposed);
+    return calendar($months, :$per-row, :$empty, :$transposed);
 }
 
 multi sub calendar($months is copy = Whatever,
@@ -182,25 +219,7 @@ multi sub calendar($months is copy = Whatever,
                    Bool :t(:$transposed) = False) {
 
     # Process months specs
-    given $months {
-        when Whatever {
-            $months = three-months(Date.today.year, Date.today.month);
-        }
-
-        when $_ ~~ Iterable && $_.map({ $_ ~~ UInt:D || $_ ~~ Str:D }) {
-            $months .= map({ $_ ~~ Str:D ?? %month-names{$_.lc} !! $_ });
-            $months = Date.today.Year X=> $months.Array;
-        }
-
-        when $_.all ~~ Pair:D {
-            # Replace month names with integers
-            $months = $_.map(-> $p { $p.key => ($p.value ~~ Str:D ?? %month-names{$p.value.lc} !! $p.value) }).Array;
-        }
-
-        default {
-            $months = [-1];
-        }
-    }
+    $months = process-month-specs($months);
 
     die "The months argument is expected to be Whatever, a list of month names or integers between 1 and 12, or a list of year-month pairs."
     unless $months>>.value.all ~~ UInt:D && ([&&] $months>>.value.map({ 1 ≤ $_ ≤ 12 }));
