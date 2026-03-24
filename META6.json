@@ -1,35 +1,27 @@
 {
-  "api": "1",
-  "auth": "zef:antononcube",
-  "authors": [
-    "Anton Antonov"
-  ],
-  "build-depends": [
-  ],
-  "depends": [
-  ],
-  "description": "Raku package with text calendar functions for displaying monthly, yearly, and custom calendars.",
-  "license": "Artistic-2.0",
-  "name": "Text::Calendar",
-  "perl": "6.d",
-  "provides": {
-    "Text::Calendar": "lib/Text/Calendar.rakumod"
-  },
-  "resources": [
-  ],
-  "source-url": "https://github.com/antononcube/Raku-Text-Calendar",
-  "tags": [
-    "cal",
-    "calendar",
-    "month",
-    "monthly",
-    "ncal",
-    "span",
-    "text",
-    "year",
-    "yearly"
-  ],
-  "test-depends": [
-  ],
-  "version": "0.1.5"
+    "name": "Text::Calendar",
+    "description": "Raku package with text calendar functions for displaying monthly, yearly, and custom calendars.",
+    "version": "0.1.6",
+    "authors": [
+        "Anton Antonov"
+    ],
+    "auth": "zef:antononcube",
+    "build-depends": [],
+    "provides": {
+        "Text::Calendar": "lib/Text/Calendar.rakumod"
+    },
+    "license": "Artistic-2.0",
+    "tags": [
+        "cal",
+        "calendar",
+        "month",
+        "monthly",
+        "ncal",
+        "span",
+        "text",
+        "year",
+        "yearly"
+    ],
+    "api": "1",
+    "source-url": "https://github.com/antononcube/Raku-Text-Calendar"
 }
