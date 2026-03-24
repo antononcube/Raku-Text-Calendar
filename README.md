@@ -236,6 +236,6 @@ Significant modifications are expected for calendars based on ranges of days.
 [GitHub/tbrowder](https://github.com/tbrowder).
 
 [WCp1] Will Coleda,
-[App::Cal Raku packate](https://github.com/coke/raku-cal),
+[App::Cal Raku package](https://github.com/coke/raku-cal),
 (2022-2024),
 [GitHub/coke](https://github.com/coke).
